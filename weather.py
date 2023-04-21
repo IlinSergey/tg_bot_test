@@ -1,7 +1,6 @@
 import asyncio
 from aiohttp import ClientSession
 import config
-from pprint import pprint
 
 
 async def get_weather(city):

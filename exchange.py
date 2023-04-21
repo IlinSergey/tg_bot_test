@@ -1,7 +1,6 @@
 import asyncio
 from aiohttp import ClientSession
 from config import EXCHANGE_API_KEY
-from pprint import pprint
 
 
 async def change_money(currency, target_currency, amount):
@@ -12,7 +11,11 @@ async def change_money(currency, target_currency, amount):
 
         async with session.get(url=url, headers=headers, params=params) as response:
             current_json = await response.json()
-            pprint(current_json)
+            try:
+                result = current_json['result']
+                return result
+            except KeyError:
+                return 'Нет данных'
 
 
 async def main(currency, target_currency, amount):
@@ -22,4 +25,4 @@ async def main(currency, target_currency, amount):
 
 
 if __name__ == '__main__':
-    asyncio.run((main('eur', 'rub', 10)))
+    asyncio.run((main('eur', 'rub', 100)))
