@@ -4,3 +4,4 @@ env/
 config.py
 test.py
 __pycache__/
+bot.log

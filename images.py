@@ -1,14 +1,12 @@
 import asyncio
 from aiohttp import ClientSession
 from config import UNSPLASH_API_KEY
-from pprint import pprint
 
 
 async def get_image(image_name: str):
     async with ClientSession() as session:
-        url = 'https://api.unsplash.com/photos/random'        
+        url = 'https://api.unsplash.com/photos/random'
         params = {'query': image_name, 'client_id': UNSPLASH_API_KEY}
-
         async with session.get(url=url, params=params) as response:
             image_json = await response.json()
             try:
@@ -21,7 +19,7 @@ async def get_image(image_name: str):
 async def main(image_name):
     task = asyncio.create_task(get_image(image_name))
     result = await asyncio.gather(task)
-    print(result)
+    return result
 
 
 if __name__ == '__main__':

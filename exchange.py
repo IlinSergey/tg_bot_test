@@ -3,11 +3,11 @@ from aiohttp import ClientSession
 from config import EXCHANGE_API_KEY
 
 
-async def change_money(currency, target_currency, amount):
+async def change_money(currency: str, target_currency: str, amount: str):
     async with ClientSession() as session:
         url = 'https://api.apilayer.com/exchangerates_data/convert'
         headers = {'apikey': EXCHANGE_API_KEY}
-        params = {'to': target_currency, 'from': currency, 'amount': amount}
+        params = {'to': target_currency, 'from': currency, 'amount': int(amount)}
 
         async with session.get(url=url, headers=headers, params=params) as response:
             current_json = await response.json()
