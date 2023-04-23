@@ -1,9 +1,13 @@
-import asyncio
 from aiohttp import ClientSession
+
 from config import UNSPLASH_API_KEY
 
 
-async def get_image(image_name: str):
+async def get_image(image_name: str) -> str:
+    '''
+    Функция принимает на вход строку с названием картинки, выполняет запрос к сервису Unsplash,
+    и возвращает ссылку на рандомную картинку согласно запроса.
+    '''
     async with ClientSession() as session:
         url = 'https://api.unsplash.com/photos/random'
         params = {'query': image_name, 'client_id': UNSPLASH_API_KEY}
@@ -13,14 +17,4 @@ async def get_image(image_name: str):
                 result = image_json['urls']['regular']
                 return result
             except KeyError:
-                return 'Нет данных'
-
-
-async def main(image_name):
-    task = asyncio.create_task(get_image(image_name))
-    result = await asyncio.gather(task)
-    return result
-
-
-if __name__ == '__main__':
-    asyncio.run((main('funny animal')))
+                return 'Нет данных, ошибка в получении картинки.'

@@ -1,9 +1,16 @@
-import asyncio
+from typing import Union
+
 from aiohttp import ClientSession
+
 from config import EXCHANGE_API_KEY
 
 
-async def change_money(currency: str, target_currency: str, amount: str):
+async def change_money(currency: str, target_currency: str, amount: str) -> Union[int, str]:
+    '''
+    Функция принимает на вход три параметра в виде строки, currency - текущая валюта,
+    target_currency - целевая валюта для обмена, amount - количество.
+    Делает запрос к сервису Exchange Rates AP и возвращает результат обмена валют.
+    '''
     async with ClientSession() as session:
         url = 'https://api.apilayer.com/exchangerates_data/convert'
         headers = {'apikey': EXCHANGE_API_KEY}
@@ -16,13 +23,3 @@ async def change_money(currency: str, target_currency: str, amount: str):
                 return result
             except KeyError:
                 return 'Нет данных'
-
-
-async def main(currency, target_currency, amount):
-    task = asyncio.create_task(change_money(currency, target_currency, amount))
-    result = await asyncio.gather(task)
-    print(result)
-
-
-if __name__ == '__main__':
-    asyncio.run((main('eur', 'rub', 100)))

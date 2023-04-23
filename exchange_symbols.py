@@ -1,3 +1,5 @@
+''' Коды доступных валют для сервиса Exchange Rates AP '''
+
 support_exchange_symbols = {
     'AED': 'United Arab Emirates Dirham',
     'AFN': 'Afghan Afghani',
