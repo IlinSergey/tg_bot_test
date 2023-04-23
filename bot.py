@@ -2,6 +2,7 @@ import logging
 from config import TG_API_KEY
 from weather import get_weather
 from images import get_image
+from exchange import change_money
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
@@ -25,6 +26,18 @@ help_commands = '''
 <b>/quiz</b> - <em>создать опрос</em>
 '''
 
+
+popular_currencies = '''
+<b>USD</b> - <em>Американский доллар</em>
+<b>EUR</b> - <em>Евро</em>
+<b>RUB</b> - <em>Российский рубль</em>
+<b>GBP</b> - <em>Британский фунт стерлингов</em>
+<b>CHF</b> - <em>Швейцарский франк</em>
+<b>JPY</b> - <em>Японская иена</em>
+<b>CNY</b> - <em>Китайский юань</em>
+'''
+
+
 srorage = MemoryStorage()
 bot = Bot(token=TG_API_KEY)
 dp = Dispatcher(bot, storage=MemoryStorage())
@@ -32,6 +45,12 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 class Weather(StatesGroup):
     city = State()
+
+
+class Exchange(StatesGroup):
+    currency = State()
+    target_currency = State()
+    amount = State()
 
 
 keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -69,6 +88,40 @@ async def weather_on_city(message: types.Message, state: FSMContext):
     await message.reply(weather)
     await state.finish()
 
+
+@dp.message_handler(commands=['exchange'])
+async def exchange(message: types.Message):
+    await message.reply(f'Какую валюту меняем?\nСамые популярные:\n{popular_currencies}',
+                        parse_mode='HTML')
+    await Exchange.currency.set()
+
+
+@dp.message_handler(state=Exchange.currency)
+async def set_currency(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['currency'] = message.text
+    await message.reply('На какую валюту меняем?')
+    await Exchange.next()
+
+
+@dp.message_handler(state=Exchange.target_currency)
+async def set_turget_currency(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['target_currency'] = message.text
+    await message.reply('Сколько меняем?')
+    await Exchange.next()
+
+
+@dp.message_handler(state=Exchange.amount)
+async def set_amount(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['amount'] = message.text
+    result = await change_money(currency=data['currency'],
+                                target_currency=data['target_currency'],
+                                amount=data['amount'])
+    result = round(result, 2)
+    await message.reply(f'{result} {data["target_currency"]}')
+    await state.finish()
 
 
 @dp.message_handler(commands=['photo'])
